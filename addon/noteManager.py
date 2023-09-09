@@ -71,8 +71,12 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
     cardTemplate['qfmt'] = '''
         <table>
             <tr>
-                <td><h1 class="term">{{term}}</h1><br><div> 英 [{{BrEPhonetic}}] 美 [{{AmEPhonetic}}]</div></div></td>
-                <td><img {{image}} height="120px"></td>
+                <td>
+                    <h1 class="term">{{term}}</h1>
+                    <br>
+                    <div> 美 [{{AmEPhonetic}}] {{AmEPron}} </div>
+                </td>
+                <td class='img'><img {{image}} height="125px"></td>
             </tr>
         </table>
         <hr>
@@ -81,29 +85,24 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
         <hr>
         短语：
         <table>{{phraseFront}}</table>
-        <hr>
-        例句：
-        <table>{{sentenceFront}}</table>
-        {{BrEPron}}
-        {{AmEPron}}
     '''
     cardTemplate['afmt'] = '''
         <table>
             <tr>
-                <td><h1 class="term">{{term}}</h1><br><div> 英 [{{BrEPhonetic}}] 美 [{{AmEPhonetic}}]</div></div></td>
-                <td><img {{image}} height="120px"></td>
+                <td>
+                    <h1 class="term">{{term}}</h1>
+                    <br>
+                    <div> 美 [{{AmEPhonetic}}] {{AmEPron}} </div>
+                </td>
+                <td class='img'><img {{image}} height="125px"></td>
             </tr>
         </table>
         <hr>
-        释义：
-        <br>
+        释义：<br>
         <table>{{definition}}</table>
         <hr>
         短语：
         <table>{{phraseBack}}</table>
-        <hr>
-        例句：
-        <table>{{sentenceBack}}</table>
     '''
     modelObject['css'] = '''
         .card {
@@ -114,7 +113,15 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
             background-color: white;
         }
         .term {
-            font-size : 35px;
+            font-size: 35px;
+        }
+        .img {
+            float: right;
+            margin-left: 180px;
+        }
+        .replay-button {
+            width: 30px;
+            height: 40px;
         }
     '''
     mw.col.models.addTemplate(modelObject, cardTemplate)
