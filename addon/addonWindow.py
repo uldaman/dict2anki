@@ -484,8 +484,8 @@ class Windows(QDialog, mainUI.Ui_Dialog):
                 added += 1
                 # 添加发音任务
                 if whichPron and wordItemData.get(whichPron):
-                    audiosDownloadTasks.append(
-                        (f"{whichPron}_{wordItemData['term']}.mp3", wordItemData[whichPron],))
+                    mediaFile = os.path.join(mw.col.media.dir(), f"{whichPron}_{wordItemData['term']}.mp3")
+                    audiosDownloadTasks.append((mediaFile, wordItemData[whichPron],))
         mw.reset()
 
         logger.info(f'发音下载任务:{audiosDownloadTasks}')
