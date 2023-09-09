@@ -96,7 +96,8 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
         </table>
         <hr>
         释义：
-        <div>{{definition}}</div>
+        <br>
+        <table>{{definition}}</table>
         <hr>
         短语：
         <table>{{phraseBack}}</table>
@@ -142,7 +143,8 @@ def addNoteToDeck(deckObject, modelObject, currentConfig: dict, oneQueryResult: 
                 newNote[configName] = f'src="{oneQueryResult[configName]}"'
             # 释义
             elif configName == 'definition' and currentConfig[configName]:
-                newNote[configName] = ' '.join(oneQueryResult[configName])
+                newNote[configName] = '\n'.join(
+                    [f'<tr><td>{e.strip()}</td></tr>' for e in oneQueryResult[configName]])
             # 发音
             elif configName in EXTRA_OPTION[:2]:
                 newNote[configName] = f"[sound:{configName}_{oneQueryResult['term']}.mp3]"
