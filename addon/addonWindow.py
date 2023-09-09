@@ -100,7 +100,8 @@ class Windows(QDialog, mainUI.Ui_Dialog):
 
         # 防止 debug 信息写入stdout/stderr 导致 Anki 崩溃
         logFile = os.path.join(gettempdir(), 'dict2anki.log')
-        logging.basicConfig(handlers=[logging.FileHandler(logFile, 'w', 'utf-8')], level=logging.DEBUG, format='[%(asctime)s][%(levelname)8s] -- %(message)s - (%(name)s)')
+        logging.basicConfig(handlers=[logging.FileHandler(logFile, 'w', 'utf-8')],
+                            level=logging.DEBUG, format='[%(asctime)s][%(levelname)8s] -- %(message)s - (%(name)s)')
 
         logTextBox = QPlainTextEdit(self)
         logTextBox.setLineWrapMode(QPlainTextEdit.NoWrap)
@@ -119,9 +120,12 @@ class Windows(QDialog, mainUI.Ui_Dialog):
         self.deckComboBox.setCurrentText(config['deck'])
         self.dictionaryComboBox.setCurrentIndex(config['selectedDict'])
         self.apiComboBox.setCurrentIndex(config['selectedApi'])
-        self.usernameLineEdit.setText(config['credential'][config['selectedDict']]['username'])
-        self.passwordLineEdit.setText(config['credential'][config['selectedDict']]['password'])
-        self.cookieLineEdit.setText(config['credential'][config['selectedDict']]['cookie'])
+        self.usernameLineEdit.setText(
+            config['credential'][config['selectedDict']]['username'])
+        self.passwordLineEdit.setText(
+            config['credential'][config['selectedDict']]['password'])
+        self.cookieLineEdit.setText(
+            config['credential'][config['selectedDict']]['cookie'])
         self.definitionCheckBox.setChecked(config['definition'])
         self.imageCheckBox.setChecked(config['image'])
         self.sentenceCheckBox.setChecked(config['sentence'])
@@ -171,7 +175,8 @@ class Windows(QDialog, mainUI.Ui_Dialog):
     @staticmethod
     def _saveConfig(config):
         _config = deepcopy(config)
-        _config['credential'] = [dict(username='', password='', cookie='')] * len(dictionaries)
+        _config['credential'] = [
+            dict(username='', password='', cookie='')] * len(dictionaries)
         _config['credential'][_config['selectedDict']] = dict(
             username=_config.pop('username'),
             password=str(_config.pop('password')),
@@ -204,7 +209,8 @@ class Windows(QDialog, mainUI.Ui_Dialog):
     @pyqtSlot(int)
     def on_dictionaryComboBox_currentIndexChanged(self, index):
         """词典候选框改变事件"""
-        self.currentDictionaryLabel.setText(f'当前选择词典: {self.dictionaryComboBox.currentText()}')
+        self.currentDictionaryLabel.setText(
+            f'当前选择词典: {self.dictionaryComboBox.currentText()}')
         config = mw.addonManager.getConfig(__name__)
         self.cookieLineEdit.setText(config['credential'][index]['cookie'])
 
@@ -223,7 +229,8 @@ class Windows(QDialog, mainUI.Ui_Dialog):
         self.selectedDict = dictionaries[currentConfig['selectedDict']]()
 
         # 登陆线程
-        self.loginWorker = LoginStateCheckWorker(self.selectedDict.checkCookie, json.loads(self.cookieLineEdit.text() or '{}'))
+        self.loginWorker = LoginStateCheckWorker(
+            self.selectedDict.checkCookie, json.loads(self.cookieLineEdit.text() or '{}'))
         self.loginWorker.moveToThread(self.workerThread)
         self.loginWorker.start.connect(self.loginWorker.run)
         self.loginWorker.logSuccess.connect(self.onLogSuccess)
@@ -258,7 +265,8 @@ class Windows(QDialog, mainUI.Ui_Dialog):
 
         for groupName in [str(group_name) for group_name, _ in self.selectedDict.groups]:
             item = QListWidgetItem()
-            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+            item.setFlags(Qt.ItemIsSelectable |
+                          Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
             item.setText(groupName)
             item.setCheckState(Qt.Unchecked)
             group.wordGroupListWidget.addItem(item)
@@ -266,7 +274,8 @@ class Windows(QDialog, mainUI.Ui_Dialog):
         # 恢复上次选择的单词本分组
         if self.selectedGroups:
             for groupName in self.selectedGroups[self.currentConfig['selectedDict']]:
-                items = group.wordGroupListWidget.findItems(groupName, Qt.MatchExactly)
+                items = group.wordGroupListWidget.findItems(
+                    groupName, Qt.MatchExactly)
                 for item in items:
                     item.setCheckState(Qt.Checked)
         else:
@@ -282,7 +291,8 @@ class Windows(QDialog, mainUI.Ui_Dialog):
             selectedGroups = [group.wordGroupListWidget.item(index).text() for index in range(group.wordGroupListWidget.count()) if
                               group.wordGroupListWidget.item(index).checkState() == Qt.Checked]
             # 保存分组记录
-            self.selectedGroups[self.currentConfig['selectedDict']] = selectedGroups
+            self.selectedGroups[self.currentConfig['selectedDict']
+                                ] = selectedGroups
             self.progressBar.setValue(0)
             self.progressBar.setMaximum(1)
             logger.info(f'选中单词本{selectedGroups}')
@@ -304,10 +314,12 @@ class Windows(QDialog, mainUI.Ui_Dialog):
         self.localWords = getWordsByDeck(self.deckComboBox.currentText())
 
         # 启动单词获取线程
-        self.pullWorker = RemoteWordFetchingWorker(self.selectedDict, [(group_name, group_map[group_name],) for group_name in selected_groups])
+        self.pullWorker = RemoteWordFetchingWorker(self.selectedDict, [(
+            group_name, group_map[group_name],) for group_name in selected_groups])
         self.pullWorker.moveToThread(self.workerThread)
         self.pullWorker.start.connect(self.pullWorker.run)
-        self.pullWorker.tick.connect(lambda: self.progressBar.setValue(self.progressBar.value() + 1))
+        self.pullWorker.tick.connect(
+            lambda: self.progressBar.setValue(self.progressBar.value() + 1))
         self.pullWorker.setProgress.connect(self.progressBar.setMaximum)
         self.pullWorker.doneThisGroup.connect(self.insertWordToListWidget)
         self.pullWorker.done.connect(self.on_allPullWork_done)
@@ -325,7 +337,8 @@ class Windows(QDialog, mainUI.Ui_Dialog):
     def on_allPullWork_done(self):
         """全部分组获取完毕事件"""
         localWordList = set(getWordsByDeck(self.deckComboBox.currentText()))
-        remoteWordList = set([self.newWordListWidget.item(row).text() for row in range(self.newWordListWidget.count())])
+        remoteWordList = set([self.newWordListWidget.item(row).text()
+                             for row in range(self.newWordListWidget.count())])
 
         newWords = remoteWordList - localWordList  # 新单词
         needToDeleteWords = localWordList - remoteWordList  # 需要删除的单词
@@ -355,7 +368,8 @@ class Windows(QDialog, mainUI.Ui_Dialog):
         self.deckComboBox.setEnabled(True)
         self.pullRemoteWordsBtn.setEnabled(True)
         self.queryBtn.setEnabled(self.newWordListWidget.count() > 0)
-        self.syncBtn.setEnabled(self.newWordListWidget.count() == 0 and self.needDeleteWordListWidget.count() > 0)
+        self.syncBtn.setEnabled(self.newWordListWidget.count(
+        ) == 0 and self.needDeleteWordListWidget.count() > 0)
         if self.needDeleteWordListWidget.count() == self.newWordListWidget.count() == 0:
             logger.info('无需同步')
             tooltip('无需同步')
@@ -394,11 +408,13 @@ class Windows(QDialog, mainUI.Ui_Dialog):
         logger.info(f'待查询单词{wordList}')
         # 查询线程
         self.progressBar.setMaximum(len(wordList))
-        self.queryWorker = QueryWorker(wordList, apis[currentConfig['selectedApi']])
+        self.queryWorker = QueryWorker(
+            wordList, apis[currentConfig['selectedApi']])
         self.queryWorker.moveToThread(self.workerThread)
         self.queryWorker.thisRowDone.connect(self.on_thisRowDone)
         self.queryWorker.thisRowFailed.connect(self.on_thisRowFailed)
-        self.queryWorker.tick.connect(lambda: self.progressBar.setValue(self.progressBar.value() + 1))
+        self.queryWorker.tick.connect(
+            lambda: self.progressBar.setValue(self.progressBar.value() + 1))
         self.queryWorker.allQueryDone.connect(self.on_allQueryDone)
         self.queryWorker.start.connect(self.queryWorker.run)
         self.queryWorker.start.emit()
@@ -436,7 +452,8 @@ class Windows(QDialog, mainUI.Ui_Dialog):
     @pyqtSlot()
     def on_syncBtn_clicked(self):
 
-        failedGenerator = (self.newWordListWidget.item(row).data(Qt.UserRole) is None for row in range(self.newWordListWidget.count()))
+        failedGenerator = (self.newWordListWidget.item(row).data(
+            Qt.UserRole) is None for row in range(self.newWordListWidget.count()))
         if any(failedGenerator):
             if not askUser('存在未查询或失败的单词，确定要加入单词本吗？\n 你可以选择失败的单词点击 "查询按钮" 来重试。'):
                 return
@@ -467,7 +484,8 @@ class Windows(QDialog, mainUI.Ui_Dialog):
                 added += 1
                 # 添加发音任务
                 if whichPron and wordItemData.get(whichPron):
-                    audiosDownloadTasks.append((f"{whichPron}_{wordItemData['term']}.mp3", wordItemData[whichPron],))
+                    audiosDownloadTasks.append(
+                        (f"{whichPron}_{wordItemData['term']}.mp3", wordItemData[whichPron],))
         mw.reset()
 
         logger.info(f'发音下载任务:{audiosDownloadTasks}')
@@ -485,10 +503,13 @@ class Windows(QDialog, mainUI.Ui_Dialog):
             self.audioDownloadThread.start()
             self.audioDownloadWorker = AudioDownloadWorker(audiosDownloadTasks)
             self.audioDownloadWorker.moveToThread(self.audioDownloadThread)
-            self.audioDownloadWorker.tick.connect(lambda: self.progressBar.setValue(self.progressBar.value() + 1))
-            self.audioDownloadWorker.start.connect(self.audioDownloadWorker.run)
+            self.audioDownloadWorker.tick.connect(
+                lambda: self.progressBar.setValue(self.progressBar.value() + 1))
+            self.audioDownloadWorker.start.connect(
+                self.audioDownloadWorker.run)
             self.audioDownloadWorker.done.connect(lambda: tooltip(f'发音下载完成'))
-            self.audioDownloadWorker.done.connect(self.audioDownloadThread.quit)
+            self.audioDownloadWorker.done.connect(
+                self.audioDownloadThread.quit)
             self.audioDownloadWorker.start.emit()
 
         self.newWordListWidget.clear()
@@ -503,13 +524,15 @@ class Windows(QDialog, mainUI.Ui_Dialog):
         deleted = 0
 
         if needToDeleteWords and askUser(f'确定要删除这些单词吗:{needToDeleteWords[:3]}...({len(needToDeleteWords)}个)', title='Dict2Anki', parent=self):
-            needToDeleteWordNoteIds = getNotes(needToDeleteWords, currentConfig['deck'])
+            needToDeleteWordNoteIds = getNotes(
+                needToDeleteWords, currentConfig['deck'])
             mw.col.remNotes(needToDeleteWordNoteIds)
             deleted += 1
             mw.col.reset()
             mw.reset()
             for item in needToDeleteWordItems:
-                self.needDeleteWordListWidget.takeItem(self.needDeleteWordListWidget.row(item))
+                self.needDeleteWordListWidget.takeItem(
+                    self.needDeleteWordListWidget.row(item))
             logger.info('删除完成')
         logger.info('完成')
 

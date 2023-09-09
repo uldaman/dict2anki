@@ -28,17 +28,17 @@ class Parser:
             return ret
 
         div = div[0]
-        els = div.select('li') # 多词性
-        if not els: # 单一词性
+        els = div.select('li')  # 多词性
+        if not els:  # 单一词性
             els = div.select('.exp')
-        if not els: # 还有一奇怪的情况，不在任何的标签里面
+        if not els:  # 还有一奇怪的情况，不在任何的标签里面
             trans = div.find(id='trans')
             trans.replace_with('') if trans else ''
 
             script = div.find('script')
             script.replace_with('') if script else ''
 
-            for atag in div.find_all('a'): # 赞踩这些字样
+            for atag in div.find_all('a'):  # 赞踩这些字样
                 atag.replace_with('')
             els = [div]
 
@@ -77,7 +77,8 @@ class Parser:
             pass
 
         try:
-            pron['BrEUrl'] = "{}{}".format('' if 'http' in links[0]['data-rel'] else url, links[0]['data-rel'])
+            pron['BrEUrl'] = "{}{}".format(
+                '' if 'http' in links[0]['data-rel'] else url, links[0]['data-rel'])
         except (TypeError, KeyError, IndexError):
             pass
 
@@ -87,7 +88,8 @@ class Parser:
             pass
 
         try:
-            pron['AmEUrl'] = "{}{}".format('' if 'http' in links[1]['data-rel'] else url, links[1]['data-rel'])
+            pron['AmEUrl'] = "{}{}".format(
+                '' if 'http' in links[1]['data-rel'] else url, links[1]['data-rel'])
         except (TypeError, KeyError, IndexError):
             pass
 
@@ -120,7 +122,7 @@ class Parser:
         for el in els:
             try:
                 line = el.select('p')
-                sentence = "".join([ str(c) for c in line[0].contents])
+                sentence = "".join([str(c) for c in line[0].contents])
                 sentence_translation = line[1].get_text(strip=True)
                 ret.append((sentence, sentence_translation))
             except KeyError as e:
@@ -171,8 +173,10 @@ class Parser:
 class API(AbstractQueryAPI):
     name = '欧陆词典 API'
     timeout = 10
-    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'}
-    retries = Retry(total=5, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'}
+    retries = Retry(total=5, backoff_factor=1,
+                    status_forcelist=[500, 502, 503, 504])
     session = requests.Session()
     session.mount('http://', HTTPAdapter(max_retries=retries))
     session.mount('https://', HTTPAdapter(max_retries=retries))
@@ -184,7 +188,8 @@ class API(AbstractQueryAPI):
         queryResult = None
         try:
             rsp = cls.session.get(cls.url.format(word), timeout=cls.timeout)
-            logger.debug(f'code:{rsp.status_code}- word:{word} text:{rsp.text[:100]}')
+            logger.debug(
+                f'code:{rsp.status_code}- word:{word} text:{rsp.text[:100]}')
             queryResult = cls.parser(rsp.text, word).result
         except Exception as e:
             logger.exception(e)
