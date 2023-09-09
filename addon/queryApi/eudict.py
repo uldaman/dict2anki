@@ -1,6 +1,7 @@
 import logging
 import requests
 from urllib3 import Retry
+from requests.packages import urllib3
 from requests.adapters import HTTPAdapter
 from ..misc import AbstractQueryAPI
 from bs4 import BeautifulSoup
@@ -180,17 +181,18 @@ class API(AbstractQueryAPI):
     session = requests.Session()
     session.mount('http://', HTTPAdapter(max_retries=retries))
     session.mount('https://', HTTPAdapter(max_retries=retries))
-    url = 'https://dict.eudic.net/dicts/en/{}'
+    url = 'https://beta_dict.eudic.net/dicts/en/{}'
     parser = Parser
 
     @classmethod
     def query(cls, word, cookies) -> dict:
+        queryResult = None
         cls.session.cookies = requests.utils.cookiejar_from_dict(
             cookies, cookiejar=None, overwrite=True)
-        queryResult = None
         try:
+            urllib3.disable_warnings()
             rsp = cls.session.get(cls.url.format(
-                word), timeout=cls.timeout, headers=cls.headers)
+                word), timeout=cls.timeout, headers=cls.headers, verify=False)
             logger.debug(
                 f'code:{rsp.status_code}- word:{word} text:{rsp.text[:100]}')
             queryResult = cls.parser(rsp.text, word).result
