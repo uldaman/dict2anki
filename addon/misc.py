@@ -33,7 +33,7 @@ class AbstractDictionary(ABC):
 class AbstractQueryAPI(ABC):
     @classmethod
     @abstractmethod
-    def query(cls, word) -> dict:
+    def query(cls, word, cookies) -> dict:
         """
         查询
         :param word: 单词

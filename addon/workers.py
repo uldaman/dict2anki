@@ -94,10 +94,11 @@ class QueryWorker(QObject):
     allQueryDone = pyqtSignal()
     logger = logging.getLogger('dict2Anki.workers.QueryWorker')
 
-    def __init__(self, wordList: [dict], api):
+    def __init__(self, wordList: [dict], api, cookies):
         super().__init__()
         self.wordList = wordList
         self.api = api
+        self.cookies = cookies
 
     def run(self):
         currentThread = QThread.currentThread()
@@ -105,7 +106,7 @@ class QueryWorker(QObject):
         def _query(word, row):
             if currentThread.isInterruptionRequested():
                 return
-            queryResult = self.api.query(word)
+            queryResult = self.api.query(word, self.cookies)
             if queryResult:
                 self.logger.info(f'查询成功: {word} -- {queryResult}')
                 self.thisRowDone.emit(row, queryResult)

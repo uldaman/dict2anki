@@ -16,19 +16,22 @@ class Parser:
     @property
     def definition(self) -> list:
         try:
-            ec = [d['tr'][0]['l']['i'][0] for d in self._result['ec']['word'][0]['trs']][:3]
+            ec = [d['tr'][0]['l']['i'][0]
+                  for d in self._result['ec']['word'][0]['trs']][:3]
         except KeyError:
             ec = []
 
         try:
-            ee = [ d['pos'] + d['tr'][0]['l']['i'] for d in self._result['ee']['word']['trs']]
+            ee = [d['pos'] + d['tr'][0]['l']['i']
+                  for d in self._result['ee']['word']['trs']]
         except KeyError:
             ee = []
-        
+
         ec += ee
 
         try:
-            web_trans = [w['value'] for w in self._result['web_trans']['web-translation'][0]['trans']][:3]
+            web_trans = [w['value'] for w in self._result['web_trans']
+                         ['web-translation'][0]['trans']][:3]
         except KeyError:
             web_trans = []
         return ec if ec else web_trans
@@ -65,22 +68,22 @@ class Parser:
         return pron
 
     @property
-    def BrEPhonetic(self)->str:
+    def BrEPhonetic(self) -> str:
         """英式音标"""
         return self.pronunciations['BrEPhonetic']
 
     @property
-    def AmEPhonetic(self)->str:
+    def AmEPhonetic(self) -> str:
         """美式音标"""
         return self.pronunciations['AmEPhonetic']
 
     @property
-    def BrEPron(self)->str:
+    def BrEPron(self) -> str:
         """英式发音url"""
         return self.pronunciations['BrEUrl']
 
     @property
-    def AmEPron(self)->str:
+    def AmEPron(self) -> str:
         """美式发音url"""
         return self.pronunciations['AmEUrl']
 
@@ -92,7 +95,7 @@ class Parser:
             return []
 
     @property
-    def image(self)->str:
+    def image(self) -> str:
         try:
             return [i['image'] for i in self._result['pic_dict']['pic']][0]
         except (KeyError, IndexError):
@@ -103,8 +106,10 @@ class Parser:
         phrase = self._result.get('phrs', dict()).get('phrs', [])
         return [
             (
-                p.get('phr', dict()).get('headword', dict()).get('l', dict()).get('i', None),
-                p.get('phr', dict()).get('trs', [dict()])[0].get('tr', dict()).get('l', dict()).get('i', None)
+                p.get('phr', dict()).get('headword', dict()).get(
+                    'l', dict()).get('i', None),
+                p.get('phr', dict()).get('trs', [dict()])[0].get(
+                    'tr', dict()).get('l', dict()).get('i', None)
             )
             for p in phrase if phrase
         ]
@@ -127,21 +132,26 @@ class Parser:
 class API(AbstractQueryAPI):
     name = '有道 API'
     timeout = 10
-    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'}
-    retries = Retry(total=5, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'}
+    retries = Retry(total=5, backoff_factor=1,
+                    status_forcelist=[500, 502, 503, 504])
     session = requests.Session()
     session.mount('http://', HTTPAdapter(max_retries=retries))
     session.mount('https://', HTTPAdapter(max_retries=retries))
     url = 'https://dict.youdao.com/jsonapi'
-    params = {"dicts": {"count": 99, "dicts": [["ec", "ee", "phrs", "pic_dict"], ["web_trans"], ["fanyi"], ["blng_sents_part"]]}}
+    params = {"dicts": {"count": 99, "dicts": [["ec", "ee", "phrs", "pic_dict"], [
+        "web_trans"], ["fanyi"], ["blng_sents_part"]]}}
     parser = Parser
 
     @classmethod
-    def query(cls, word) -> dict:
+    def query(cls, word, cookies) -> dict:
         queryResult = None
         try:
-            rsp = cls.session.get(cls.url, params=urlencode(dict(cls.params, **{'q': word})), timeout=cls.timeout)
-            logger.debug(f'code:{rsp.status_code}- word:{word} text:{rsp.text}')
+            rsp = cls.session.get(cls.url, params=urlencode(
+                dict(cls.params, **{'q': word})), timeout=cls.timeout, headers=cls.headers)
+            logger.debug(
+                f'code:{rsp.status_code}- word:{word} text:{rsp.text}')
             queryResult = cls.parser(rsp.json(), word).result
         except Exception as e:
             logger.exception(e)

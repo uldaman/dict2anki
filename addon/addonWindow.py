@@ -409,7 +409,7 @@ class Windows(QDialog, mainUI.Ui_Dialog):
         # 查询线程
         self.progressBar.setMaximum(len(wordList))
         self.queryWorker = QueryWorker(
-            wordList, apis[currentConfig['selectedApi']])
+            wordList, apis[currentConfig['selectedApi']], json.loads(self.cookieLineEdit.text() or '{}'))
         self.queryWorker.moveToThread(self.workerThread)
         self.queryWorker.thisRowDone.connect(self.on_thisRowDone)
         self.queryWorker.thisRowFailed.connect(self.on_thisRowFailed)

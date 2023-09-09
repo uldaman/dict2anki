@@ -184,10 +184,13 @@ class API(AbstractQueryAPI):
     parser = Parser
 
     @classmethod
-    def query(cls, word) -> dict:
+    def query(cls, word, cookies) -> dict:
+        cls.session.cookies = requests.utils.cookiejar_from_dict(
+            cookies, cookiejar=None, overwrite=True)
         queryResult = None
         try:
-            rsp = cls.session.get(cls.url.format(word), timeout=cls.timeout)
+            rsp = cls.session.get(cls.url.format(
+                word), timeout=cls.timeout, headers=cls.headers)
             logger.debug(
                 f'code:{rsp.status_code}- word:{word} text:{rsp.text[:100]}')
             queryResult = cls.parser(rsp.text, word).result
