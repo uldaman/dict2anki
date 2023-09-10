@@ -127,6 +127,9 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
             width: 180px;
             height: 180px;
         }
+        img[src=""],img:not([src]) {
+            opacity:0;
+        }
     '''
     mw.col.models.addTemplate(modelObject, cardTemplate)
     mw.col.models.add(modelObject)
