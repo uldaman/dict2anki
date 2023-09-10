@@ -170,7 +170,7 @@ class API(AbstractQueryAPI):
     session.mount('http://', HTTPAdapter(max_retries=retries))
     session.mount('https://', HTTPAdapter(max_retries=retries))
     url = 'https://dict.youdao.com/jsonapi'
-    params = {"dicts": {"count": 99, "dicts": [["ec", "ee", "phrs", "pic_dict"], [
+    params = {"dicts": {"count": 99, "dicts": [["ec", "phrs", "pic_dict"], [
         "web_trans"], ["fanyi"], ["blng_sents_part"]]}}
     parser = Parser
 

@@ -76,7 +76,7 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
                     <br>
                     <div> 美 [{{AmEPhonetic}}] {{AmEPron}} </div>
                 </td>
-                <td class='img'><img {{image}} height="125px"></td>
+                <td class='img'><img {{image}} ></td>
             </tr>
         </table>
         <hr>
@@ -84,7 +84,7 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
         <div>Tap to View</div>
         <hr>
         短语：
-        <table>{{phraseFront}}</table>
+        {{phraseFront}}
     '''
     cardTemplate['afmt'] = '''
         <table>
@@ -94,15 +94,15 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
                     <br>
                     <div> 美 [{{AmEPhonetic}}] {{AmEPron}} </div>
                 </td>
-                <td class='img'><img {{image}} height="125px"></td>
+                <td class='img'><img {{image}} ></td>
             </tr>
         </table>
         <hr>
-        释义：<br>
-        <table>{{definition}}</table>
+        释义：
+        {{definition}}
         <hr>
         短语：
-        <table>{{phraseBack}}</table>
+        {{phraseBack}}
     '''
     modelObject['css'] = '''
         .card {
@@ -115,13 +115,17 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
         .term {
             font-size: 35px;
         }
+        .replay-button {
+            width: 30px;
+            height: 43px;
+        }
         .img {
             float: right;
             margin-left: 180px;
         }
-        .replay-button {
-            width: 30px;
-            height: 40px;
+        img {
+            width: 180px;
+            height: 180px;
         }
     '''
     mw.col.models.addTemplate(modelObject, cardTemplate)
@@ -142,16 +146,16 @@ def addNoteToDeck(deckObject, modelObject, currentConfig: dict, oneQueryResult: 
             # 短语例句
             if configName in ['sentence', 'phrase'] and currentConfig[configName]:
                 newNote[f'{configName}Front'] = '\n'.join(
-                    [f'<tr><td>{e.strip()}</td></tr>' for e, _ in oneQueryResult[configName]])
+                    [f'<div>{e.strip()}</div>' for e, _ in oneQueryResult[configName]])
                 newNote[f'{configName}Back'] = '\n'.join(
-                    [f'<tr><td>{e.strip()}<br>{c.strip()}</td></tr>' for e, c in oneQueryResult[configName]])
+                    [f'<div>{e.strip()}<br>{c.strip()}</div>' for e, c in oneQueryResult[configName]])
             # 图片
             elif configName == 'image':
                 newNote[configName] = f'src="{oneQueryResult[configName]}"'
             # 释义
             elif configName == 'definition' and currentConfig[configName]:
                 newNote[configName] = '\n'.join(
-                    [f'<tr><td>{e.strip()}</td></tr>' for e in oneQueryResult[configName]])
+                    [f'<div>{e.strip()}</div>' for e in oneQueryResult[configName]])
             # 发音
             elif configName in EXTRA_OPTION[:2]:
                 newNote[configName] = f"[sound:{configName}_{oneQueryResult['term']}.mp3]"
