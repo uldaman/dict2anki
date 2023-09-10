@@ -503,13 +503,10 @@ class Windows(QDialog, mainUI.Ui_Dialog):
             self.audioDownloadThread.start()
             self.audioDownloadWorker = AudioDownloadWorker(audiosDownloadTasks)
             self.audioDownloadWorker.moveToThread(self.audioDownloadThread)
-            self.audioDownloadWorker.tick.connect(
-                lambda: self.progressBar.setValue(self.progressBar.value() + 1))
-            self.audioDownloadWorker.start.connect(
-                self.audioDownloadWorker.run)
-            self.audioDownloadWorker.done.connect(lambda: tooltip(f'发音下载完成'))
-            self.audioDownloadWorker.done.connect(
-                self.audioDownloadThread.quit)
+            self.audioDownloadWorker.tick.connect(lambda: self.progressBar.setValue(self.progressBar.value() + 1))
+            self.audioDownloadWorker.start.connect(self.audioDownloadWorker.run)
+            # self.audioDownloadWorker.done.connect(lambda: tooltip(f'发音下载完成'))
+            self.audioDownloadWorker.done.connect(self.audioDownloadThread.quit)
             self.audioDownloadWorker.start.emit()
 
         self.newWordListWidget.clear()
@@ -536,5 +533,4 @@ class Windows(QDialog, mainUI.Ui_Dialog):
             logger.info('删除完成')
         logger.info('完成')
 
-        if not audiosDownloadTasks:
-            tooltip(f'添加{added}个笔记\n删除{deleted}个笔记')
+        tooltip(f'添加{added}个笔记\n删除{deleted}个笔记')
