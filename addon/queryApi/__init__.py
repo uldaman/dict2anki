@@ -1,3 +1,3 @@
-from . import youdao, eudict
+from . import youdao
 
-apis = [eudict.API, youdao.API]
+apis = [youdao.API]

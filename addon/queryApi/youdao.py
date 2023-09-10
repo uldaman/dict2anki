@@ -1,12 +1,18 @@
+import os
 import logging
 import requests
 from urllib3 import Retry
 from urllib.parse import urlencode
 from requests.adapters import HTTPAdapter
 from ..misc import AbstractQueryAPI
+from ..mdictQuery.mdict_query import IndexBuilder
+from bs4 import BeautifulSoup
 logger = logging.getLogger('dict2Anki.queryApi.youdao')
 __all__ = ['API']
 
+
+dirname = os.path.dirname(os.path.abspath(__file__))
+bd = IndexBuilder(f"{dirname}\\..\\mdictQuery\\mdx\\LDOCE5++ V 2-15.mdx")
 
 class Parser:
     def __init__(self, json_obj, term):
@@ -55,13 +61,37 @@ class Parser:
         except KeyError:
             pass
 
+        mdx = bd.mdx_lookup(self.term)
+        if not mdx or '@@@LINK' in mdx[0]:
+            try:
+                pron['AmEUrl'] = url + self._result['simple']['word'][0]['usspeech']
+            except (TypeError, KeyError):
+                pass
+            try:
+                pron['BrEUrl'] = url + self._result['simple']['word'][0]['ukspeech']
+            except (TypeError, KeyError):
+                pass
+            return pron
+
+        soap = BeautifulSoup(mdx[0], 'html.parser')
+
         try:
-            pron['AmEUrl'] = url + self._result['simple']['word'][0]['usspeech']
+            ameFile = soap.select_one('a.amefile')['href']
+            ameFile = ameFile.split("://")[1]
+            ameFile = '\\' + ameFile.replace('/', '\\')
+            ameMedia = bd.mdd_lookup(ameFile)
+            if ameMedia:
+                pron['AmEUrl'] = ameMedia[0]
         except (TypeError, KeyError):
             pass
 
         try:
-            pron['BrEUrl'] = url + self._result['simple']['word'][0]['ukspeech']
+            breFile = soap.select_one('a.brefile')['href']
+            breFile = breFile.split("://")[1]
+            breFile = '\\' + breFile.replace('/', '\\')
+            breMedia = bd.mdd_lookup(breFile)
+            if breMedia:
+                pron['BrEUrl'] = breMedia[0]
         except (TypeError, KeyError):
             pass
 

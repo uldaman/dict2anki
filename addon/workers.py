@@ -68,8 +68,7 @@ class RemoteWordFetchingWorker(QObject):
         currentThread = QThread.currentThread()
 
         def _pull(*args):
-            if currentThread.isInterruptionRequested():
-                return
+            if currentThread.isInterruptionRequested(): return
             wordPerPage = self.selectedDict.getWordsByPage(*args)
             self.tick.emit()
             return wordPerPage
@@ -104,8 +103,7 @@ class QueryWorker(QObject):
         currentThread = QThread.currentThread()
 
         def _query(word, row):
-            if currentThread.isInterruptionRequested():
-                return
+            if currentThread.isInterruptionRequested(): return
             queryResult = self.api.query(word, self.cookies)
             if queryResult:
                 self.logger.info(f'查询成功: {word} -- {queryResult}')
@@ -142,15 +140,30 @@ class AudioDownloadWorker(QObject):
     def run(self):
         currentThread = QThread.currentThread()
 
+        def __write_local_bytes(data, file_name, chunk_size=1024):
+            with open(file_name, 'wb') as f:
+                for i in range(0, len(data), chunk_size):
+                    chunk = data[i:i+chunk_size]
+                    f.write(chunk)
+                    yield len(chunk)
+
+        def __write_net_bytes(data, file_name, chunk_size=1024):
+            with open(file_name, 'wb') as f:
+                for chunk in data.iter_content(chunk_size):
+                    if chunk:
+                        f.write(chunk)
+                    yield len(chunk)
+
         def __download(fileName, url):
             try:
-                if currentThread.isInterruptionRequested():
-                    return
-                r = self.session.get(url, stream=True)
-                with open(fileName, 'wb') as f:
-                    for chunk in r.iter_content(chunk_size=1024):
-                        if chunk:
-                            f.write(chunk)
+                if currentThread.isInterruptionRequested(): return
+                chunk_writer = None
+                if isinstance(url, (bytes, bytearray)):
+                    chunk_writer = __write_local_bytes(url, fileName)
+                else:
+                    chunk_writer = __write_net_bytes(self.session.get(url, stream=True), fileName)
+                for _ in chunk_writer: pass
+                chunk_writer.close()
                 self.logger.info(f'{fileName} 下载完成')
             except Exception as e:
                 self.logger.warning(f'下载{fileName}:{url}异常: {e}')
@@ -160,4 +173,5 @@ class AudioDownloadWorker(QObject):
         with ThreadPool(max_workers=3) as executor:
             for fileName, url in self.audios:
                 executor.submit(__download, fileName, url)
+
         self.done.emit()
