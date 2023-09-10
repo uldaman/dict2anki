@@ -76,7 +76,7 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
                     <br>
                     <div> 美 [{{AmEPhonetic}}] {{AmEPron}} </div>
                 </td>
-                <td class='img'><img {{image}} ></td>
+                <td class='img'><img></td>
             </tr>
         </table>
         <hr>

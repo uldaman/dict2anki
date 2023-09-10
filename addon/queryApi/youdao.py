@@ -1,4 +1,5 @@
 import os
+import re
 import logging
 import requests
 from urllib3 import Retry
@@ -13,6 +14,8 @@ __all__ = ['API']
 
 dirname = os.path.dirname(os.path.abspath(__file__))
 bd = IndexBuilder(f"{dirname}\\..\\mdictQuery\\mdx\\LDOCE5++ V 2-15.mdx")
+cd = IndexBuilder(f"{dirname}\\..\\mdictQuery\\mdx\\简明英汉必应版.mdx")
+
 
 class Parser:
     def __init__(self, json_obj, term):
@@ -21,6 +24,15 @@ class Parser:
 
     @property
     def definition(self) -> list:
+        try:
+            mdx = cd.mdx_lookup(self.term)
+            extracted_text = re.search(r'`2``2`(.*?)`2``4', mdx[0], re.DOTALL).group(1)
+            matches = re.search(r'`2``2`(.*?)$', extracted_text, re.DOTALL)
+            if matches: extracted_text = matches.group(1)
+            return (extracted_text.strip()).splitlines()
+        except:
+            pass
+
         try:
             ec = [d['tr'][0]['l']['i'][0]
                   for d in self._result['ec']['word'][0]['trs']][:3]
@@ -40,6 +52,7 @@ class Parser:
                          ['web-translation'][0]['trans']][:3]
         except KeyError:
             web_trans = []
+
         return ec if ec else web_trans
 
     @property
