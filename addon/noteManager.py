@@ -83,8 +83,8 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
         释义：
         <div>Tap to View</div>
         <hr>
-        短语：
-        {{phraseFront}}
+        例句：
+        {{sentenceFront}}
     '''
     cardTemplate['afmt'] = '''
         <table>
@@ -101,8 +101,8 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
         释义：
         {{definition}}
         <hr>
-        短语：
-        {{phraseBack}}
+        例句：
+        {{sentenceBack}}
     '''
     modelObject['css'] = '''
         .card {
