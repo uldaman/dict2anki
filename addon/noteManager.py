@@ -160,7 +160,7 @@ def addNoteToDeck(deckObject, modelObject, currentConfig: dict, oneQueryResult: 
                 newNote[configName] = '\n'.join(
                     [f'<div>{e.strip()}</div>' for e in oneQueryResult[configName]])
             # 发音
-            elif configName in EXTRA_OPTION[:2]:
+            elif configName in EXTRA_OPTION[:2] and currentConfig[configName]:
                 newNote[configName] = f"[sound:{configName}_{oneQueryResult['term']}.mp3]"
             # 其他
             elif currentConfig[configName]:
