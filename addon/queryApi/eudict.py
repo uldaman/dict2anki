@@ -126,7 +126,7 @@ class Parser:
                 sentence = "".join([str(c) for c in line[0].contents])
                 sentence_translation = line[1].get_text(strip=True)
                 ret.append((sentence, sentence_translation))
-            except KeyError as e:
+            except KeyError:
                 pass
         return ret
 

@@ -4,13 +4,14 @@ import logging
 import json
 from copy import deepcopy
 from tempfile import gettempdir
+from typing import List
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QPlainTextEdit, QDialog, QListWidgetItem, QVBoxLayout, QPushButton
 from PyQt5.QtCore import pyqtSlot, QThread, Qt
 
 from .queryApi import apis
-from .UIForm import wordGroup, mainUI, icons_rc
+from .UIForm import wordGroup, mainUI, icons_rc  # noqa: F401
 from .workers import LoginStateCheckWorker, VersionCheckWorker, RemoteWordFetchingWorker, QueryWorker, AudioDownloadWorker
 from .dictionary import dictionaries
 from .logger import Handler
@@ -265,8 +266,7 @@ class Windows(QDialog, mainUI.Ui_Dialog):
 
         for groupName in [str(group_name) for group_name, _ in self.selectedDict.groups]:
             item = QListWidgetItem()
-            item.setFlags(Qt.ItemIsSelectable |
-                          Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
             item.setText(groupName)
             item.setCheckState(Qt.Unchecked)
             group.wordGroupListWidget.addItem(item)
@@ -308,7 +308,7 @@ class Windows(QDialog, mainUI.Ui_Dialog):
         group.buttonBox.rejected.connect(onRejected)
         container.exec()
 
-    def getRemoteWordList(self, selected_groups: [str]):
+    def getRemoteWordList(self, selected_groups: List[str]):
         """根据选中到分组获取分组下到全部单词，并添加到 newWordListWidget"""
         group_map = dict(self.selectedDict.groups)
         self.localWords = getWordsByDeck(self.deckComboBox.currentText())

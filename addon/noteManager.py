@@ -1,3 +1,4 @@
+from typing import List
 from .constants import MODEL_FIELDS, BASIC_OPTION, EXTRA_OPTION
 import logging
 
@@ -14,7 +15,7 @@ def getDeckList():
     return [deck['name'] for deck in mw.col.decks.all()]
 
 
-def getWordsByDeck(deckName) -> [str]:
+def getWordsByDeck(deckName) -> List[str]:
     notes = mw.col.findNotes(f'deck:"{deckName}"')
     words = []
     for nid in notes:
@@ -94,7 +95,7 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
                     <br>
                     <div> 美 [{{AmEPhonetic}}] {{AmEPron}} </div>
                 </td>
-                <td class='img'><img {{image}} ></td>
+                <td class='img'><img src='{{image}}' ></td>
             </tr>
         </table>
         <hr>
@@ -152,9 +153,6 @@ def addNoteToDeck(deckObject, modelObject, currentConfig: dict, oneQueryResult: 
                     [f'<div>{e.strip()}</div>' for e, _ in oneQueryResult[configName]])
                 newNote[f'{configName}Back'] = '\n'.join(
                     [f'<div>{e.strip()}<br>{c.strip()}</div>' for e, c in oneQueryResult[configName]])
-            # 图片
-            elif configName == 'image':
-                newNote[configName] = f'src="{oneQueryResult[configName]}"'
             # 释义
             elif configName == 'definition' and currentConfig[configName]:
                 newNote[configName] = '\n'.join(
