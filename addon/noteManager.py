@@ -73,7 +73,7 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
         <table>
             <tr>
                 <td>
-                    <h1 class="term">{{term}}</h1>
+                    <h1 class='term'>{{term}}</h1>
                     <br>
                     <div> 美 [{{AmEPhonetic}}] {{AmEPron}} </div>
                 </td>
@@ -88,14 +88,19 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
         {{sentenceFront}}
     '''
     cardTemplate['afmt'] = '''
+        <html>
+            <head>
+                <meta name='referrer' content='no-referrer'>
+            </head>
+        </html>
         <table>
             <tr>
                 <td>
-                    <h1 class="term">{{term}}</h1>
+                    <h1 class='term'>{{term}}</h1>
                     <br>
                     <div> 美 [{{AmEPhonetic}}] {{AmEPron}} </div>
                 </td>
-                <td class='img'><img src='{{image}}' ></td>
+                <td class='img'><img src='{{image}}'></td>
             </tr>
         </table>
         <hr>
@@ -128,7 +133,7 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
             width: 180px;
             height: 180px;
         }
-        img[src=""],img:not([src]) {
+        img[src=""],img[src="%22%22"],img:not([src]){
             opacity:0;
         }
     '''
